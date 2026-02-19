@@ -1,0 +1,81 @@
+USE [EStatementMasked_MTB]
+GO
+/****** Object:  StoredProcedure [dbo].[UPDATE_LIMIT]    Script Date: 02/26/2017 13:50:02 ******/
+SET ANSI_NULLS ON
+GO
+SET QUOTED_IDENTIFIER ON
+GO
+
+--Exec UPDATE_LIMIT
+ALTER PROCEDURE [dbo].[UPDATE_LIMIT]
+AS
+BEGIN
+	DECLARE @CONTRACTNO varchar(50)
+	DECLARE @CType varchar(50)
+	DECLARE @CreLim_BDT NUMERIC(18,2)=0
+	DECLARE @CreLim_USD NUMERIC(18,2)=0
+	DECLARE @AVAIL_CRD_LIMIT NUMERIC(18,2)=0
+	DECLARE @CreLim_U NUMERIC(18,2)=0
+	DECLARE @SumPurAndWithdr NUMERIC(18,2)=0
+	DECLARE @SumPurchaseWithGlobal NUMERIC(18,2)=0
+	DECLARE @AVAIL_CRD_LIMIT_BDT NUMERIC(18,2)=0
+	DECLARE @Available_Credit_limit_USD NUMERIC(18,2)=0
+	DECLARE @AVAIL_Cash_LIMIT_BDT NUMERIC(18,2)=0
+	DECLARE @AVAIL_Cash_LIMIT_USD NUMERIC(18,2)=0
+	DECLARE @SumPurAndWithdr_U NUMERIC(18,2)=0
+	DECLARE @sBalance NUMERIC(18,2)=0
+	DECLARE @sBalance_u NUMERIC(18,2)=0
+	DECLARE @sBalance_bdt NUMERIC(18,2)=0
+	DECLARE @eBalance NUMERIC(18,2)=0
+	DECLARE @eBalance_u NUMERIC(18,2)=0
+	DECLARE @eBalance_bdt NUMERIC(18,2)=0
+	DECLARE @usdCurrencyRate NUMERIC(18,2)=0
+
+	DECLARE CURSORNAME CURSOR FOR
+	SELECT distinct CONTRACTNO from STATEMENT_INFO
+
+	OPEN CURSORNAME
+	FETCH NEXT FROM CURSORNAME INTO @CONTRACTNO
+
+	WHILE @@FETCH_STATUS = 0
+	BEGIN
+		--PRINT @CONTRACTNO
+		
+		SELECT @AVAIL_Cash_LIMIT_BDT=AVAIL_CASH_LIMIT, @eBalance_bdt=EBALANCE,@sBalance_bdt=SBALANCE,@CType = ACURN, @CreLim_BDT = CRD_LIMIT,@SumPurAndWithdr = SUM_WITHDRAWAL+SUM_PURCHASE-SUM_CREDIT+SUM_INTEREST FROM STATEMENT_INFO where CONTRACTNO = @CONTRACTNO and ACURN = 'BDT'
+		SELECT @eBalance_u=EBALANCE,@sBalance_u=SBALANCE,@CType = ACURN, @CreLim_USD = CRD_LIMIT,@SumPurAndWithdr_U = SUM_WITHDRAWAL+SUM_PURCHASE-SUM_CREDIT+SUM_INTEREST FROM STATEMENT_INFO where CONTRACTNO = @CONTRACTNO and ACURN = 'USD'
+		SELECT @usdCurrencyRate=USDRate FROM CURRENCY_RATE
+		--print @CType
+		--print @SumPurAndWithdr
+		--print @CreLim_USD
+		--print @SumPurAndWithdr_U
+		
+		---26.05.2016--
+		SET @eBalance=@eBalance_bdt+(@eBalance_u*@usdCurrencyRate)
+		SET @sBalance=@sBalance_bdt+(@sBalance_u*@usdCurrencyRate)
+		--SET @SumPurchaseWithGlobal=@eBalance
+		--if @sBalance<0
+		--SET @SumPurchaseWithGlobal=@sBalance+@SumPurAndWithdr+(@SumPurAndWithdr_U*@usdCurrencyRate)
+		--else
+		--SET @SumPurchaseWithGlobal=(-@sBalance)+@SumPurAndWithdr+(@SumPurAndWithdr_U*@usdCurrencyRate)
+		---26.05.2016 end--
+		
+		
+		--print @SumPurchaseWithGlobal
+		SET @AVAIL_CRD_LIMIT_BDT=@CreLim_BDT+(@eBalance)--26.05.2016
+		--SET @AVAIL_CRD_LIMIT_BDT=@CreLim_BDT-@SumPurchaseWithGlobal
+		SET @Available_Credit_limit_USD=@AVAIL_CRD_LIMIT_BDT/@usdCurrencyRate
+		--SET @AVAIL_Cash_LIMIT_BDT= @AVAIL_CRD_LIMIT_BDT/2
+		--SET @AVAIL_Cash_LIMIT_USD=@Available_Credit_limit_USD/2
+		
+		--Update for Credit Limit of USD
+		update STATEMENT_INFO set CRD_LIMIT = @CreLim_BDT,AVAIL_CRD_LIMIT = @AVAIL_CRD_LIMIT_BDT where CONTRACTNO = @CONTRACTNO AND ACURN = 'BDT'
+		--Update for Credit Limit of USD
+		update STATEMENT_INFO set CRD_LIMIT = @CreLim_BDT/@usdCurrencyRate,AVAIL_CRD_LIMIT = @Available_Credit_limit_USD, AVAIL_CASH_LIMIT=@AVAIL_Cash_LIMIT_BDT/@usdCurrencyRate  where CONTRACTNO = @CONTRACTNO AND ACURN = 'USD'
+		--Print 'usdCurrencyRate:';
+		--print @usdCurrencyRate;
+		--print @CreLim_BDT/@usdCurrencyRate;
+		FETCH NEXT FROM CURSORNAME INTO @CONTRACTNO
+	END
+	CLOSE CURSORNAME
+	DEALLOCATE CURSORNAME
+END
