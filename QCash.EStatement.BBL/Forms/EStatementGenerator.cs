@@ -2541,6 +2541,18 @@ namespace StatementGenerator
 
                                         #endregion
 
+                                        #region QR TXN BDT
+
+                                        if (dr[l].Table.Columns.Contains("FR"))
+                                        {
+                                            if (dr[l]["FR"].ToString().ToUpper().Contains("QR TXN"))
+                                            {
+                                                objSTD.TRNDESC = "PURCHASE [BANGLA QR] : " + " " + dr[l]["TL"].ToString().Replace("'", "''");
+                                            }
+                                        }
+
+                                        #endregion
+
                                         #region INTEREST CHARGES TRANSACTION
 
                                         if ((dr[l]["D"].ToString().ToUpper().Trim() == ("INTEREST CHARGES")))
@@ -2561,7 +2573,7 @@ namespace StatementGenerator
                                         {
                                             objSTD.P = objSt.PAN;
                                         }
-
+                                        objSTD.TRNDESC = objSTD.TRNDESC.ToString().Replace("'", "''");
                                         sql = "Insert into STATEMENT_DETAILS(STATEMENTID,CONTRACTNO,IDCLIENT,PAN,ACCOUNTNO,STATEMENTNO,TRNDATE,POSTDATE,TRNDESC,ACURN,AMOUNT,OC,ORGAMOUNT,AMOUNTSIGN,APPROVAL,FR,SERIALNO,DE,P,DOCNO,NO)" +
                                             " VALUES('" + objSTD.STATEMENTID + "','" + objSTD.CONTRACTNO + "','" + objSTD.IDCLIENT + "','" + objSTD.PAN + "','" + objSTD.ACCOUNTNO + "','" + objSTD.STATEMENTNO + "','" + objSTD.TRNDATE + "'," +
                                             "'" + objSTD.POSTDATE + "','" + objSTD.TRNDESC + "','" + objSTD.ACURN + "','" + objSTD.AMOUNT + "','" + objSTD.OC + "','" + objSTD.ORGAMOUNT + "','" + objSTD.AMOUNTSIGN + "','" + objSTD.APPROVAL + "','" + objSTD.FR + "','" + objSTD.SERIALNO + "','" + objSTD.DE + "','" + objSTD.P + "','" + objSTD.DOCNO + "','" + objSTD.NO + "')";
@@ -3498,6 +3510,18 @@ namespace StatementGenerator
 
                                         #endregion
 
+                                        #region QR TXN BDT
+
+                                        if (dr[l].Table.Columns.Contains("FR"))
+                                        {
+                                            if (dr[l]["FR"].ToString().ToUpper().Contains("QR TXN"))
+                                            {
+                                                objSTD.TRNDESC = "PURCHASE [BANGLA QR] : " + " " + dr[l]["TL"].ToString().Replace("'", "''");
+                                            }
+                                        }
+
+                                        #endregion
+
                                         #region INTEREST CHARGES TRANSACTION
 
                                         if ((dr[l]["D"].ToString().ToUpper().Trim() == ("INTEREST CHARGES")))
@@ -3517,7 +3541,7 @@ namespace StatementGenerator
                                         {
                                             objSTD.P = objSt.PAN;
                                         }
-
+                                        objSTD.TRNDESC = objSTD.TRNDESC.ToString().Replace("'", "''");
                                         sql = "Insert into STATEMENT_DETAILS(STATEMENTID,CONTRACTNO,IDCLIENT,PAN,ACCOUNTNO,STATEMENTNO,TRNDATE,POSTDATE,TRNDESC,ACURN,AMOUNT,OC,ORGAMOUNT,AMOUNTSIGN,APPROVAL,FR,SERIALNO,DE,P,DOCNO,NO)" +
                                             " VALUES('" + objSTD.STATEMENTID + "','" + objSTD.CONTRACTNO + "','" + objSTD.IDCLIENT + "','" + objSTD.PAN + "','" + objSTD.ACCOUNTNO + "','" + objSTD.STATEMENTNO + "','" + objSTD.TRNDATE + "'," +
                                             "'" + objSTD.POSTDATE + "','" + objSTD.TRNDESC + "','" + objSTD.ACURN + "','" + objSTD.AMOUNT + "','" + objSTD.OC + "','" + objSTD.ORGAMOUNT + "','" + objSTD.AMOUNTSIGN + "','" + objSTD.APPROVAL + "','" + objSTD.FR + "','" + objSTD.SERIALNO + "','" + objSTD.DE + "','" + objSTD.P + "','" + objSTD.DOCNO + "','" + objSTD.NO + "')";

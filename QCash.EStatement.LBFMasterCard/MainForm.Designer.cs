@@ -165,7 +165,7 @@
             this.IsMdiContainer = true;
             this.MainMenuStrip = this.menuStrip1;
             this.Name = "MainForm";
-            this.Text = "LankBangla MC EStatement Engine V3.0.9";
+            this.Text = "LankBangla MC EStatement Engine V3.0.10";
             this.WindowState = System.Windows.Forms.FormWindowState.Maximized;
             ((System.ComponentModel.ISupportInitialize)(this.uTabMdiManager)).EndInit();
             this.menuStrip1.ResumeLayout(false);
